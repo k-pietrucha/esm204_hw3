@@ -24,8 +24,7 @@ df <- read_csv("HW3_data.csv") %>%
 - Current electricity cost is $0.10/kWh
 - One kWh electricity emits 0.85 lbs CO2
 - 2204.62 lbs in 1 metric ton 
-- Interim SCC value of $51/metric ton or 5100 cents/metric ton
-- MSC: P = 5100Q
+- Interim SCC value of $51/metric ton or 5100 cents/metric ton (total external cost)
 
 ```{r}
 # convert lbs to metric ton
@@ -35,8 +34,7 @@ lb_to_ton_convert <- (0.85/2204.62)
 MEC <- 5100*lb_to_ton_convert
 ``` 
 
-- MPC + MEC = MSC
-- MEC = 5090Q = `r round(MEC, 4)` cents per kWh electricity
+- MEC = `r round(MEC, 4)` cents per kWh electricity
 
 ## Question 2
 
@@ -84,7 +82,18 @@ ggplot() +
   labs(x = "Electricity (kWh)", y = "Price (cents)") +
   theme_bw()
 
+slope_supply <- (10/market_q)
 
+# calculating surpluses at market equilibrium
 
+# CS needs Y intercept --> at 0 kWh, price would be $0.305
+# Note the conversion back to dollars 
+cs_baseline <- 0.5*market_q*(0.305 - 0.10)
+# $ 55,013.75
+ps_baseline <- 0.5*market_q*0.10
+# $26,835.97
+# cost is rectangle 
+env_cost_baseline <- (MEC*market_q)/100
+# $10,553.65
 ```
 
