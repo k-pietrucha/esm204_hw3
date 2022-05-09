@@ -34,7 +34,7 @@ lb_to_ton_convert <- (0.85/2204.62)
 MEC <- 5100*lb_to_ton_convert
 ``` 
 
-- MEC = `r round(MEC, 4)` cents per kWh electricity
+- MEC = `r round(MEC, 2)` cents per kWh electricity
 
 ## Question 2
 
