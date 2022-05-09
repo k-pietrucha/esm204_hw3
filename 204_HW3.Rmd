@@ -94,12 +94,22 @@ slope_supply <- (10/market_q)
 # CS calculation needs Y intercept of high demand/demand agg curve --> at 0 kWh, price would be $0.316
 
 high_sum <-summary.lm(model_demand_h)
-high_sum$coefficients[1, 1] 
+high_y_int <- high_sum$coefficients[1, 1] 
+
+
+low_sum <- summary.lm(model_demand_l)
+low_y_int <- low_sum$coefficients[1, 1]
 
 # Converted back to dollars
 
-cs_sq <- 0.5*market_q*(0.316 - 0.10)
-# $57,965.70
+cs_sq_high <- 0.5*market_q*((high_y_int/100) - 0.10)
+# $57,984.10
+cs_sq_low <- 0.5*market_q*((low_y_int/100) - 0.10)
+# $35,882.29
+
+cs_sq_total <- cs_sq_high + cs_sq_low
+# $93,866.39
+
 ps_sq <- 0.5*market_q*0.10
 # $26,835.97
 env_cost_sq <- (MEC*market_q)/100
@@ -110,7 +120,11 @@ env_cost_sq <- (MEC*market_q)/100
 - The supply curve is the green curve, which represents the marginal private cost curve. Its equation is P = `r round(slope_supply, 7)`Q
 
 Under status quo:
-- Consumer benefit = $`r round(cs_sq, 2)`
+- Consumer benefit = $`r round(cs_sq_total, 2)`
 - Producer benefit = $`r round(ps_sq, 2)`
 - Environmental cost = $`r round(env_cost_sq, 2)`
+
+## Question 3
+
+The high-income consumers get much more of total benefit, at `r round(cs_sq_high, 2)` USD compared to `r round(cs_sq_low, 2)`USD for low-income consumers.
 
