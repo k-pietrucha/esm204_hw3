@@ -1,6 +1,6 @@
 ---
 title: 'ESM 204 H3: Distributional Consequences of Climate Policy'
-author: "Katie Pietrucha"
+author: "Katie Pietrucha, Charlie Wilson, & Tommy King"
 date: "5/9/2022"
 output: html_document
 ---
@@ -83,16 +83,25 @@ ggplot() +
   theme_bw()
 
 slope_supply <- (10/market_q)
+# supply curve equation: P = 0.0000186Q
+
+```
+
+```{r}
 
 # calculating surpluses at market equilibrium
 
-# CS needs Y intercept --> at 0 kWh, price would be $0.305
-# Note the conversion back to dollars 
-cs_baseline <- 0.5*market_q*(0.305 - 0.10)
-# $ 55,013.75
+# CS calculation needs Y intercept of high demand curve --> at 0 kWh, price would be $0.316
+
+high_sum <-summary.lm(model_demand_h)
+high_sum$coefficients[1, 1] 
+
+# Converted back to dollars
+
+cs_baseline <- 0.5*market_q*(0.316 - 0.10)
+# $57,965.70
 ps_baseline <- 0.5*market_q*0.10
 # $26,835.97
-# cost is rectangle 
 env_cost_baseline <- (MEC*market_q)/100
 # $10,553.65
 ```
