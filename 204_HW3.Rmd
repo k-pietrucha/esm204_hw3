@@ -32,7 +32,7 @@ df <- read_csv("HW3_data.csv") %>%
 lb_to_ton_convert <- (0.85/2204.62) 
 # one kWh electricity emits 0.0003856 metric tons of carbon
 
-MEC <- 5090*lb_to_ton_convert
+MEC <- 5100*lb_to_ton_convert
 ``` 
 
 - MPC + MEC = MSC
