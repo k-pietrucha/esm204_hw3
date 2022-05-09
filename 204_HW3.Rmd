@@ -1,0 +1,90 @@
+---
+title: 'ESM 204 H3: Distributional Consequences of Climate Policy'
+author: "Katie Pietrucha"
+date: "5/9/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE, message = FALSE, warning = FALSE}
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+
+library(tidyverse)
+library(janitor)
+library(rootSolve)
+```
+
+```{r}
+# read in data
+df <- read_csv("HW3_data.csv") %>% 
+  select(-1) %>% 
+  clean_names()
+```
+
+## Question 1
+- Current electricity cost is $0.10/kWh
+- MPC: P = 10Q
+- One kWh electricity emits 0.85 lbs CO2
+- 2204.62 lbs in 1 metric ton 
+- Interim SCC value of $51/metric ton or 5100 cents/metric ton
+- MSC: P = 5100Q
+
+```{r}
+# convert lbs to metric ton
+lb_to_ton_convert <- (0.85/2204.62) 
+# one kWh electricity emits 0.0003856 metric tons of carbon
+
+MEC <- 5090*lb_to_ton_convert
+``` 
+
+- MPC + MEC = MSC
+- MEC = 5090Q = `r round(MEC, 4)` cents per kWh electricity
+
+## Question 2
+
+```{r}
+model_demand_l <- lm(price_cents  ~ q_low_kwh, data=df)
+model_demand_h <- lm(price_cents ~ q_high_kwh, data=df)
+
+# need to rearrange the parameter to get Q(P)! 
+
+# Qagg = Qlow(P) + Qlow(h) 
+
+# Importantly, since their intercepts are different, we know that Qagg(P) will have a kink. I include an ifelse() statement to take care of the kink.
+
+# define a function to get demand
+
+demand <- function(p, model){
+  q <- (p - model$coefficients[[1]])/model$coefficients[[2]]
+  q <- ifelse(q<0,0,q)
+  return(q)
+}
+
+# for each p level, return estimated aggregate demand
+demand_agg <- function(p){
+  q <- demand(p, model_demand_l) + demand(p, model_demand_h)
+  return(q)
+}
+
+price = seq(0, 30, length.out = 100)
+Qagg <- map(price, demand_agg) %>% unlist()
+
+df2<- tibble(Qagg = Qagg, price = price)
+
+ggplot() +
+  geom_line(df2, mapping = aes(x = Qagg, y =price)) +
+    geom_abline(slope = coef(model_demand_l)[["q_low_kwh"]], 
+              intercept = coef(model_demand_l)[["(Intercept)"]], color="goldenrod", linetype="twodash") +
+  geom_abline(slope = coef(model_demand_h)[["q_high_kwh"]], 
+              intercept = coef(model_demand_h)[["(Intercept)"]], color="steelblue", linetype="twodash") + 
+  geom_abline(slope = (10/market_q), intercept = 0, color = "green") +
+  geom_abline(slope = 0, intercept = MEC, color = "red") +
+  geom_abline(slope = 10/market_q), intercept = MEC, color = "purple") +
+  scale_x_continuous(limits = c(0,850000), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0,35), expand = c(0, 0)) +
+  labs(x = "Electricity (kWh)", y = "Price ($)") +
+  theme_bw()
+
+market_q <- demand_agg(10)
+
+```
+
