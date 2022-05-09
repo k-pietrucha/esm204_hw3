@@ -22,7 +22,6 @@ df <- read_csv("HW3_data.csv") %>%
 
 ## Question 1
 - Current electricity cost is $0.10/kWh
-- MPC: P = 10Q
 - One kWh electricity emits 0.85 lbs CO2
 - 2204.62 lbs in 1 metric ton 
 - Interim SCC value of $51/metric ton or 5100 cents/metric ton
@@ -69,6 +68,7 @@ price = seq(0, 30, length.out = 100)
 Qagg <- map(price, demand_agg) %>% unlist()
 
 df2<- tibble(Qagg = Qagg, price = price)
+market_q <- demand_agg(10)
 
 ggplot() +
   geom_line(df2, mapping = aes(x = Qagg, y =price)) +
@@ -78,13 +78,13 @@ ggplot() +
               intercept = coef(model_demand_h)[["(Intercept)"]], color="steelblue", linetype="twodash") + 
   geom_abline(slope = (10/market_q), intercept = 0, color = "green") +
   geom_abline(slope = 0, intercept = MEC, color = "red") +
-  geom_abline(slope = 10/market_q), intercept = MEC, color = "purple") +
+  geom_abline(slope = (10/market_q), intercept = MEC, color = "purple") +
   scale_x_continuous(limits = c(0,850000), expand = c(0, 0)) +
   scale_y_continuous(limits = c(0,35), expand = c(0, 0)) +
-  labs(x = "Electricity (kWh)", y = "Price ($)") +
+  labs(x = "Electricity (kWh)", y = "Price (cents)") +
   theme_bw()
 
-market_q <- demand_agg(10)
+
 
 ```
 
