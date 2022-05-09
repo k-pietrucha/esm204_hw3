@@ -91,18 +91,26 @@ slope_supply <- (10/market_q)
 
 # calculating surpluses at market equilibrium
 
-# CS calculation needs Y intercept of high demand curve --> at 0 kWh, price would be $0.316
+# CS calculation needs Y intercept of high demand/demand agg curve --> at 0 kWh, price would be $0.316
 
 high_sum <-summary.lm(model_demand_h)
 high_sum$coefficients[1, 1] 
 
 # Converted back to dollars
 
-cs_baseline <- 0.5*market_q*(0.316 - 0.10)
+cs_sq <- 0.5*market_q*(0.316 - 0.10)
 # $57,965.70
-ps_baseline <- 0.5*market_q*0.10
+ps_sq <- 0.5*market_q*0.10
 # $26,835.97
-env_cost_baseline <- (MEC*market_q)/100
+env_cost_sq <- (MEC*market_q)/100
 # $10,553.65
 ```
+
+- Aggregate monthly demand curve is the black curve with a kink, which is the horizontal sum of the low (gold dashed) and high (blue dashed) demand curves.
+- The supply curve is the green curve, which represents the marginal private cost curve. Its equation is P = `r round(slope_supply, 7)`Q
+
+Under status quo:
+- Consumer benefit = $`r round(cs_sq, 2)`
+- Producer benefit = $`r round(ps_sq, 2)`
+- Environmental cost = $`r round(env_cost_sq, 2)`
 
