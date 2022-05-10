@@ -74,6 +74,14 @@ model_lowtax <- model_demand_l - MEC
 demand_agg_tax <- function(p){
   qtax <- demand(p, model_lowtax) + demand(p, model_demand_h)
   return(qtax)
+}
+
+price_tax = seq(0, 31.6, length.out = 100)
+Qagg_tax <- map(price_tax, demand_agg_tax) %>% unlist()
+
+df2_tax<- tibble(Qagg = Qagg_tax, price = price_tax)
+market_q_tax <- demand_agg_tax(10)
+
 
 
 ggplot() +
