@@ -70,14 +70,19 @@ market_q <- demand_agg(10)
 #taxcurve <- df2 - MEC
 
 # new aggregate with tax 
-model_lowtax <- model_demand_l - MEC 
+demand_tax <- function(p, model){
+  q <- (p - (model$coefficients[[1]]-1.97))/model$coefficients[[2]]
+  q <- ifelse(q<0,0,q)
+  return(q)
+}
+
 demand_agg_tax <- function(p){
-  qtax <- demand(p, model_lowtax) + demand(p, model_demand_h)
-  return(qtax)
+  q <- demand_tax(p, model_demand_l) + demand(p, model_demand_h) # high consumers are not subjugated to the tax
+  return(q)
 }
 
 price_tax = seq(0, 31.6, length.out = 100)
-Qagg_tax <- map(price_tax, demand_agg_tax) %>% unlist()
+Qagg_tax <- map(price, demand_agg_tax) %>% unlist()
 
 df2_tax<- tibble(Qagg = Qagg_tax, price = price_tax)
 market_q_tax <- demand_agg_tax(10)
@@ -85,7 +90,8 @@ market_q_tax <- demand_agg_tax(10)
 
 
 ggplot() +
-  geom_line(df2, mapping = aes(x = Qagg, y =price, color = "black")) + # Agg demand
+  geom_line(df2, mapping = aes(x = Qagg, y =price, color = "black")) +# Agg demand
+  geom_line(df2_tax, mapping = aes(x=Qagg_tax, y = price_tax)) + #taxed agg demand
     geom_abline(slope = coef(model_demand_l)[["q_low_kwh"]], 
               intercept = coef(model_demand_l)[["(Intercept)"]], color="goldenrod", linetype="twodash") + # Low consumer demand
   geom_abline(slope = coef(model_demand_h)[["q_high_kwh"]], 
