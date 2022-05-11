@@ -67,9 +67,6 @@ Qagg <- map(price, demand_agg) %>% unlist()
 
 df2<- tibble(Qagg = Qagg, price = price)
 market_q <- demand_agg(10)
-taxcurve <- df2 - MEC
-
-
 
 ggplot() +
   geom_line(df2, mapping = aes(x = Qagg, y =price), color = "black") +# Agg demand
@@ -132,10 +129,8 @@ The high-income consumers get much more of total benefit, at `r round(cs_sq_high
 
 ## Question 4
 
- 
-
 ```{r}
-taxcurve <- df2 - MEC
+taxcurve <- df2 - MEC # consumers are taxed by the MEC
 
 ggplot() +
   geom_line(df2, mapping = aes(x = Qagg, y =price)) +# Agg demand
@@ -143,7 +138,7 @@ ggplot() +
               intercept = coef(model_demand_l)[["(Intercept)"]], color="goldenrod", linetype="twodash") + # Low consumer demand
   geom_abline(slope = coef(model_demand_h)[["q_high_kwh"]], 
               intercept = coef(model_demand_h)[["(Intercept)"]], color="steelblue", linetype="twodash") + # High consumer demand
-  geom_abline(slope = (10/market_q), intercept = 0, color = "green") + # supply curve
+  geom_abline(slope = (10/market_q), intercept = 0, color = "green") + #supply curve equation:P= 0.0000186Q
   geom_abline(slope = 0, intercept = MEC, color = "red") + # MEC
   scale_x_continuous(limits = c(0,850000), expand = c(0, 0)) +
   scale_y_continuous(limits = c(0,35), expand = c(0, 0)) +
@@ -151,8 +146,34 @@ ggplot() +
   geom_line(taxcurve, mapping = aes(x = Qagg, y = price), color = "orange") + # new demand curve adjusted for tax on consumers
   theme_bw()
 
-slope_supply <- (10/market_q)
-# supply curve equation: P = 0.0000186Q
+#find intercept of new agg demand curve and supply curve
+
+#define supply function
+supply <- function(p){
+  q <- p/slope_supply
+  return(q) 
+}
+
+#define demand function with tax
+demand_tax <- function(p, model){
+  q <- (p - (model$coefficients[[1]]-1.97))/model$coefficients[[2]]
+  q <- ifelse(q<0,0,q)
+  return(q)
+}
+
+demand_agg_tax <- function(p){
+  q <- demand_tax(p, model_demand_l) + demand_tax(p, model_demand_h)
+  return(q)
+}
+
+new_intercept <- uniroot(function(p)
+  demand_agg_tax(p) - supply(p),
+  interval = c(0,40))
+
+p_star <- new_intercept[["root"]] # p_star is $0.09319
+
+q_star <- supply(p_star) # q_star is 500216 kwh
+
 
 
 
