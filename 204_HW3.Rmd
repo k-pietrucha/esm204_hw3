@@ -136,6 +136,8 @@ ggplot() +
   geom_line(df2, mapping = aes(x = Qagg, y =price)) +# Agg demand
     geom_abline(slope = coef(model_demand_l)[["q_low_kwh"]], 
               intercept = coef(model_demand_l)[["(Intercept)"]], color="goldenrod", linetype="twodash") + # Low consumer demand
+    geom_abline(slope = coef(model_demand_l)[["q_low_kwh"]], 
+              intercept = (coef(model_demand_l)-MEC)[["(Intercept)"]], color="gray", linetype="twodash") + # new low consumer demand
   geom_abline(slope = coef(model_demand_h)[["q_high_kwh"]], 
               intercept = coef(model_demand_h)[["(Intercept)"]], color="steelblue", linetype="twodash") + # High consumer demand
   geom_abline(slope = (10/market_q), intercept = 0, color = "green") + #supply curve equation:P= 0.0000186Q
@@ -156,7 +158,7 @@ supply <- function(p){
 
 #define demand function with tax
 demand_tax <- function(p, model){
-  q <- (p - (model$coefficients[[1]]-1.97))/model$coefficients[[2]]
+  q <- (p - (model$coefficients[[1]]-MEC))/model$coefficients[[2]]
   q <- ifelse(q<0,0,q)
   return(q)
 }
@@ -175,8 +177,7 @@ p_star <- new_intercept[["root"]] # p_star is $0.09319
 
 q_star <- supply(p_star) # q_star is 500216 kwh
 
-
-
+# Katie question - does it make intuitive sense that the new p is lower? shouldn't it be higher with the tax?
 
 #saving code below just in case we need it (old adjusted demand curve)
 
@@ -198,6 +199,33 @@ q_star <- supply(p_star) # q_star is 500216 kwh
 #df2_tax<- tibble(Qagg = Qagg_tax, price = price_tax)
 #market_q_tax <- demand_agg_tax(10)
 
+```
+
+```{r}
+# calculating surpluses at taxed equilibrium
+
+# CS calculation needs Y intercept of new demand agg curve --> at 0 kWh, price would be $0.296
+
+tax_agg_y_int <- high_y_int - MEC
+
+tax_low_y_int <- low_y_int - MEC
+
+# Converted back to dollars
+
+# Katie note - tried these but they must be wrong, don't make intuitive sense :-(
+
+tax_cs_sq_high <- 0.5*q_star*((tax_agg_y_int/100) - (p_star/100))
+# High consumer benefit $50,827.35
+tax_cs_sq_low <- 0.5*q_star*((tax_low_y_int/100) - (p_star/100))
+# Low consumer benefit $30,225.91
+
+tax_cs_sq_total <- tax_cs_sq_high + tax_cs_sq_low
+# Consumer benefit $81,053.25
+
+tax_ps_sq <- 0.5*q_star*(p_star/100)
+# Producer benefit $23,316.15
+tax_env_cost_sq <- (MEC*q_star)/100
+# Environmental cost $9,837.22
 ```
 
 
