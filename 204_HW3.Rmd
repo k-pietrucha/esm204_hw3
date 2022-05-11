@@ -166,6 +166,7 @@ demand_agg_tax <- function(p){
   return(q)
 }
 
+# set the two function equal to each other to find optimal price and quantity 
 new_intercept <- uniroot(function(p)
   demand_agg_tax(p) - supply(p),
   interval = c(0,40))
