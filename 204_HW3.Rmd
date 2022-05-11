@@ -106,9 +106,12 @@ cs_sq_high <- 0.5*market_q*((high_y_int/100) - 0.10)
 cs_sq_low <- 0.5*market_q*((low_y_int/100) - 0.10)
 # Low consumer benefit $35,882.29
 
+
 cs_sq_total <- cs_sq_high + cs_sq_low
 # Consumer benefit $93,866.39
 
+cs_high_prop <- cs_sq_high/cs_sq_total # calculating proportions of consumer surplus before tax
+cs_low_prop <- 1.00 - cs_high_prop
 ps_sq <- 0.5*market_q*0.10
 # Producer benefit $26,835.97
 env_cost_sq <- (MEC*market_q)/100
@@ -159,20 +162,20 @@ supply <- function(p){
 }
 
 #define demand function with tax
-demand_tax <- function(p, model){
-  q <- (p - (model$coefficients[[1]]-MEC))/model$coefficients[[2]]
+demand_tax <- function(p, model, t){
+  q <- (p - (model$coefficients[[1]]-t))/model$coefficients[[2]]
   q <- ifelse(q<0,0,q)
   return(q)
 }
 
-demand_agg_tax <- function(p){
-  q <- demand_tax(p, model_demand_l) + demand_tax(p, model_demand_h)
+demand_agg_tax <- function(p,t){
+  q <- demand_tax(p, model_demand_l, t) + demand_tax(p, model_demand_h, t)
   return(q)
 }
 
 # set the two function equal to each other to find optimal price and quantity 
 new_intercept <- uniroot(function(p)
-  demand_agg_tax(p) - supply(p),
+  demand_agg_tax(p,MEC) - supply(p),
   interval = c(0,40))
 
 p_star <- new_intercept[["root"]] # p_star is $0.09319
@@ -210,6 +213,8 @@ tax_agg_y_int <- high_y_int - MEC
 
 tax_low_y_int <- low_y_int - MEC
 
+p_star_tax  <- p_star + MEC
+
 # Converted back to dollars
 
 tax_cs_high <- 0.5*q_star*((tax_agg_y_int/100) - ((p_star/100) + MEC/100))
@@ -239,6 +244,74 @@ An optimal electricity tax is equal to the MEC, $ `r round((MEC/100), 2)` cents 
 (f) The total environmental damage decreases to $`r round(tax_env_cost, 2)`.
 (g) The total tax revenue generated is the same as the total environmental damage: $`r round(tax_env_cost, 2)`.
 
+## Question 5
+
+```{r}
+
+demand_low <- function(p){
+  q <- demand(p, model_demand_l)
+  return(q)
+}
+
+# Question 5 
+#proportion of kwh consumed by low
+low_prop <- demand_low(10)/market_q #low consumers consume ~22.6% before tax
+
+high_prop <- 1.00 - low_prop #high consumers consume ~77.4% before tax
+
+# creating new functions
+
+# Consumer surplus 
+cs <- function(p, model){
+  q<- demand(p, model)
+  cs <- 0.5* (model$coefficients[[1]]-p)*q
+  return(cs)
+}
+
+# aggregate consumer surplus 
+cs_agg <- function(p){
+  cs <- cs(p, model_demand_l) + cs(p, model_demand_h)
+  return(cs)
+}
+
+# supplied q 
+#supply <- function(p){
+ # q<- p/slope_supply
+  #return(q)
+#}
+
+# Producer surplus 
+ps <- function(p){
+  ps <- 0.5*supply(p) * p
+  return(ps)
+}
+
+# supply price 
+supply_price <- function(q){
+  p <- slope_supply *q 
+  return(p)
+}
+
+
+SCC <- c(51,75,100,125,150)
+
+cost_table <- tibble(SCC) %>% 
+  mutate(MEC = SCC * lb_to_ton_convert) %>% 
+  mutate(q_star = demand_agg_tax(10, MEC)) %>% 
+  mutate(p_star = supply_price(q_star)) %>% 
+  mutate(p_star_tax = p_star + MEC) %>% 
+  mutate(tax_revenue = q_star * MEC) %>% 
+  mutate(high_cs_revenue = cs_high_prop * tax_revenue) %>% 
+  mutate(low_cs_revenue = cs_low_prop * tax_revenue) %>% 
+  mutate(cs_high_norevenue = cs(p_star_tax, model_demand_h)) %>% 
+  mutate(cs_high_yesrevenue = cs_high_norevenue +high_cs_revenue) %>% 
+  mutate(cs_low_norevenue = cs(p_star_tax, model_demand_l) - (MEC * q_star)) %>% 
+  mutate(cs_low_yesrevenue = cs_low_norevenue + low_cs_revenue ) %>% 
+  mutate(ps = ps(p_star)) %>% 
+  mutate(tec = (MEC * p_star))
+
+#
+```
 
 
 
