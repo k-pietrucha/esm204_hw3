@@ -140,6 +140,8 @@ ggplot() +
               intercept = (coef(model_demand_l)-MEC)[["(Intercept)"]], color="gray", linetype="twodash") + # new low consumer demand
   geom_abline(slope = coef(model_demand_h)[["q_high_kwh"]], 
               intercept = coef(model_demand_h)[["(Intercept)"]], color="steelblue", linetype="twodash") + # High consumer demand
+  geom_abline(slope = coef(model_demand_h)[["q_high_kwh"]], 
+              intercept = (coef(model_demand_h)-MEC)[["(Intercept)"]], color="gray", linetype="twodash") + # new high consumer demand
   geom_abline(slope = (10/market_q), intercept = 0, color = "green") + #supply curve equation:P= 0.0000186Q
   geom_abline(slope = 0, intercept = MEC, color = "red") + # MEC
   scale_x_continuous(limits = c(0,850000), expand = c(0, 0)) +
@@ -177,8 +179,6 @@ p_star <- new_intercept[["root"]] # p_star is $0.09319
 
 q_star <- supply(p_star) # q_star is 500216 kwh
 
-# Katie question - does it make intuitive sense that the new p is lower? shouldn't it be higher with the tax?
-
 #saving code below just in case we need it (old adjusted demand curve)
 
 # new aggregate with tax 
@@ -212,24 +212,32 @@ tax_low_y_int <- low_y_int - MEC
 
 # Converted back to dollars
 
-# Katie note - tried these but they must be wrong,
+tax_cs_high <- 0.5*q_star*((tax_agg_y_int/100) - ((p_star/100) + MEC/100))
+# High consumer benefit $45,908.74
 
-tax_cs_sq_high <- 0.5*q_star*((high_y_int/100) - (p_star/100))
-# High consumer benefit $55,745.97
-tax_cs_sq_low <-0.5*q_star*((tax_low_y_int/100) - ((p_star/100) + MEC)) - (MEC*q_star)
-  
-# Low consumer benefit $30,225.91
+tax_cs_low <-0.5*q_star*((tax_low_y_int/100) - ((p_star/100) + MEC/100)) - ((MEC/100)*q_star)
+# Low consumer benefit $15,470.08
 
-tax_cs_sq_total <- tax_cs_sq_high + tax_cs_sq_low
-# Consumer benefit $81,053.25
+tax_cs_total <- tax_cs_high + tax_cs_low
+# Consumer benefit $61,378.81
 
-tax_ps_sq <- 0.5*q_star*(p_star/100)
+tax_ps <- 0.5*q_star*(p_star/100)
 # Producer benefit $23,316.15
-tax_env_cost_sq <- (MEC*q_star)/100
+tax_env_cost <- (MEC*q_star)/100
 # Environmental cost $9,837.22
+
+# Tax revenue is the same as the environmental cost. 
 ```
 
+An optimal electricity tax is equal to the MEC, $ `r round((MEC/100), 2)` cents per kWh electricity. This tax would be paid for by both low and high-income consumers, shifted both of their demand curves (indicated by gray dotted lines) and resulted in a new aggregate demand curve, the orange kinked curve. The tax would have the following effects:
 
+(a) The electricity produced and consumed would now be `r round(q_star, 2)` kWh. Less electricity is produced and consumed.
+(b) The price of electricity would be `r round(p_star/100, 4)` cents per kWh plus an additional `r round(MEC/100, 4)` cents in tax, for a total of `r round((p_star/100) + (MEC/100), 4)` cents per kWh. This signifies an overall price increase compared to the market equilibrium price of $0.10.
+(c) The overall welfare of “high” income consumers would decrease to $`r round(tax_cs_high, 2)`.
+(d) The overall welfare of “low” income consumers would decrease to $`r round(tax_cs_low, 2)`.
+(e) The producer surplus to power suppliers (i.e., electricity producers) would decrease to $`r round(tax_ps, 2)`.
+(f) The total environmental damage decreases to $`r round(tax_env_cost, 2)`.
+(g) The total tax revenue generated is the same as the total environmental damage: $`r round(tax_env_cost, 2)`.
 
 
 
