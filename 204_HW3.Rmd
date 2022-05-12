@@ -2,11 +2,15 @@
 title: 'ESM 204 H3: Distributional Consequences of Climate Policy'
 author: "Katie Pietrucha, Charlie Wilson, & Tommy King"
 date: "5/9/2022"
-output: html_document
+output: 
+  html_document: 
+    theme: cerulean
+    toc: yes
+    code_folding: hide
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning = FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, scipen = 9999999)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, scipen = 9999999)
 
 library(tidyverse)
 library(janitor)
