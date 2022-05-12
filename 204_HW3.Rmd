@@ -6,7 +6,7 @@ output: html_document
 ---
 
 ```{r setup, include=FALSE, message = FALSE, warning = FALSE}
-knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message = FALSE, warning = FALSE, scipen = 9999999)
 
 library(tidyverse)
 library(janitor)
@@ -35,7 +35,7 @@ lb_to_ton_convert <- (0.85/2204.62)
 MEC <- 5100*lb_to_ton_convert # $.0197
 ``` 
 
-- MEC = $ `r round((MEC/100), 2)` cents per kWh electricity
+- The marginal external cost is $ `r round((MEC/100), 4)` cents per kWh electricity
 
 ## Question 2
 
@@ -129,17 +129,20 @@ env_cost_sq <- (MEC*market_q)/100
 # Environmental cost $10,553.65
 ```
 
-- Aggregate monthly demand curve is the black curve with a kink, which is the horizontal sum of the low (gold dashed) and high (blue dashed) demand curves.
-- The supply curve is the green curve, which represents the marginal private cost curve. Its equation is P = `r round(slope_supply, 7)`Q
+- The aggregate monthly demand curve is the black curve with a kink, which is the horizontal sum of the low-income (gold dashed) and high-income (blue dashed) demand curves.
+- The supply curve is the green curve, which represents the marginal private cost curve. Its equation is P = `r format(round(slope_supply, 7), scientific = F)`Q
 
-Under status quo:
-- Consumer benefit = $`r round(cs_sq_total, 2)` 
-- Producer benefit = $`r round(ps_sq, 2)`
-- Environmental cost = $`r round(env_cost_sq, 2)`
+Under the status quo,
+
+- Consumer benefit = $`r format(round(cs_sq_total, 2), scientific = F)`
+
+- Producer benefit = $`r format(round(ps_sq, 2), scientific = F)`
+
+- Environmental cost = $`r format(round(env_cost_sq, 2), scientific = F)`
 
 ## Question 3
 
-The high-income consumers get much more of total benefit, at `r round(cs_sq_high, 2)` USD compared to `r round(cs_sq_low, 2)`USD for low-income consumers.
+The high-income consumers get much more of the current total benefit, at `r format(round(cs_sq_high, 2), scientific = F)` USD compared to `r format(round(cs_sq_low, 2), scientific = F)` USD for low-income consumers.
 
 ## Question 4
 
@@ -218,6 +221,16 @@ q_star <- supply(p_star) # q_star is 500216 kwh
 ```{r}
 # calculating surpluses at taxed equilibrium
 
+demand_high_taxed <- function(p){
+  q <-demand_tax(p, model_demand_h)
+  return(q)
+}
+
+demand_low_taxed <- function(p){
+  q <- demand_tax(p, model_demand_l)
+  return(q)
+}
+
 # CS calculation needs Y intercept of new demand agg curve --> at 0 kWh, price would be $0.296
 
 tax_agg_y_int <- high_y_int - MEC
@@ -228,37 +241,42 @@ p_star_tax  <- p_star + MEC
 
 # Converted back to dollars
 
-tax_cs_high <- 0.5*q_star*((tax_agg_y_int/100) - ((p_star/100) + MEC/100))
-# High consumer benefit $45,908.74
+tax_cs_high <- 0.5*(demand_high_taxed(p_star))*((tax_agg_y_int/100) - ((p_star/100) + MEC/100))
+# High consumer benefit $35,845.77
 
-tax_cs_low <-0.5*q_star*((tax_low_y_int/100) - ((p_star/100) + MEC/100)) - ((MEC/100)*q_star)
-# Low consumer benefit $15,470.08
+tax_cs_low <- 0.5*(demand_low_taxed(p_star))*((tax_low_y_int/100) - ((p_star/100) + MEC/100)) - ((MEC/100)*q_star)
+# Low consumer benefit -$4289.99
 
 tax_cs_total <- tax_cs_high + tax_cs_low
-# Consumer benefit $61,378.81
+# Consumer benefit $31,555.78
 
 tax_ps <- 0.5*q_star*(p_star/100)
 # Producer benefit $23,316.15
+
 tax_env_cost <- (MEC*q_star)/100
 # Environmental cost $9,837.22
 
 # Tax revenue is the same as the environmental cost. 
 ```
 
-An optimal electricity tax is equal to the MEC, $ `r round((MEC/100), 2)` cents per kWh electricity. This tax would be paid for by both low and high-income consumers, shifted both of their demand curves (indicated by gray dotted lines) and resulted in a new aggregate demand curve, the orange kinked curve. The tax would have the following effects:
+An optimal electricity tax is equal to the MEC, $ `r format(round((MEC/100), 4), scientific = F)` cents per kWh electricity. This tax would be paid for by both low and high-income consumers, shifting both of their demand curves (indicated by gray dotted lines) and resulting in a new aggregate demand curve, the orange kinked curve. The tax would have the following effects:
 
-(a) The electricity produced and consumed would now be `r round(q_star, 2)` kWh. Less electricity is produced and consumed.
+(a) The electricity produced and consumed would now be `r format(round(q_star, 2), scientific = F)` kWh. Less electricity is produced and consumed.
 (b) The price of electricity would be `r round(p_star/100, 4)` cents per kWh plus an additional `r round(MEC/100, 4)` cents in tax, for a total of `r round((p_star/100) + (MEC/100), 4)` cents per kWh. This signifies an overall price increase compared to the market equilibrium price of $0.10.
-(c) The overall welfare of “high” income consumers would decrease to $`r round(tax_cs_high, 2)`.
-(d) The overall welfare of “low” income consumers would decrease to $`r round(tax_cs_low, 2)`.
-(e) The producer surplus to power suppliers (i.e., electricity producers) would decrease to $`r round(tax_ps, 2)`.
+(c) The overall welfare of “high” income consumers would decrease to $`r format(round(tax_cs_high, 2), scientific = F)`.
+(d) The overall welfare of “low” income consumers would decrease to $`r format(round(tax_cs_low, 2), scientific = F)`.
+(e) The producer surplus to power suppliers (i.e., electricity producers) would decrease to $`r format(round(tax_ps, 2), scientific = F)`.
 (f) The total environmental damage decreases to $`r round(tax_env_cost, 2)`.
 (g) The total tax revenue generated is the same as the total environmental damage: $`r round(tax_env_cost, 2)`.
 
 ## Question 5
 
-```{r}
+If all revenue from the electricity tax was redistributed to the consumers in
+proportion to their pre-tax consumption, the effects would be as follows:
 
+Note that a range of possible SCC values are explored, from $51 to 150 per metric ton.
+
+```{r}
 
 # Question 5 
 #proportion of kwh consumed by low
@@ -385,8 +403,13 @@ new_tax <- (MEC/100)/(TEC_solar/tax_env_cost) #electricity tax that makes the to
 
 ```
 
+Here, we suppose that the “high” income group has access to expensive home solar generation. This lowers their demand curve by half, indicated by the pink dashed line, and causing the aggregate demand curve to shift as well (orange kinked line). 
 
+(a) The total electricity consumption is now `r format(round(q_star_solar, 2), scientific = F)` kWh.
 
+(b) The total environmental externality is now $`r format(round(TEC_solar, 2), scientific = F)`.
+
+(c) To achieve the same amount of environmental damage, a tax of $`r format(round(new_tax, 4), scientific = F)` per kWh would need to be levied.
 
 
 
