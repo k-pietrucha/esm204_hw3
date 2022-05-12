@@ -312,7 +312,7 @@ cost_table <- tibble(SCC) %>%
   mutate(tec = (MEC * q_star))
 
 final_cost_table = subset(cost_table, 
-                          select = c(SCC,cs_high_yesrevenue,cs_low_yesrevenue,ps,tec) )
+                          select = c(SCC,cs_high_yesrevenue,cs_low_yesrevenue,ps) )
 
 kable(final_cost_table, caption = "Table 1: Welfare levels for High and Low income consumers and Electricity Producers based on varying social costs of carbon.", 
       col.names = c("Social Cost of Carbon (USD)", "High Income Welfare (USD)", "Low Income Welfare (USD)", "Electricity Producer Welfare (USD)")) %>% 
@@ -343,7 +343,7 @@ new_intercept_solar <- uniroot(function(p)
 
 p_star_solar <- new_intercept_solar[["root"]] # p_star_solar is $0.0627
 
-q_star_solar <- supply(p_star_solar) # q_star_solar is 337796 kwh
+q_star_solar <- supply(p_star_solar)# q_star_solar is 337796 kwh
 
 
 Qagg_solar <- map(price, demand_agg_tax_solar) %>% unlist()
@@ -371,9 +371,11 @@ ggplot() +
 
 TEC_solar <- (q_star_solar * MEC)/100 #total environmental externality ($6642)
 
-new_tax <- (demand_agg(p_star_solar))#-(demand_agg_tax_solar(p_star_solar))
+#new_tax <- (demand_agg(p_star_solar))-(demand_agg_tax_solar(p_star_solar))
 
-new_tax_2 <- (TEC_solar*(market_q))
+#new_tax_2 <- (TEC_solar*(market_q))
+
+new_tax <- (MEC/100)/(TEC_solar/tax_env_cost) #electricity tax that makes the total environmental damage the same as the damage when solar panels are available to the high income group
 
 ```
 
