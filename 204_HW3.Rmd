@@ -312,7 +312,7 @@ cost_table <- tibble(SCC) %>%
   mutate(tec = (MEC * q_star))
 
 final_cost_table = subset(cost_table, 
-                          select = c(SCC,cs_high_yesrevenue,cs_low_yesrevenue,ps) )
+                          select = c(SCC,cs_high_yesrevenue,cs_low_yesrevenue,ps,tec) )
 
 kable(final_cost_table, caption = "Table 1: Welfare levels for High and Low income consumers and Electricity Producers based on varying social costs of carbon.", 
       col.names = c("Social Cost of Carbon (USD)", "High Income Welfare (USD)", "Low Income Welfare (USD)", "Electricity Producer Welfare (USD)")) %>% 
@@ -321,8 +321,61 @@ kable(final_cost_table, caption = "Table 1: Welfare levels for High and Low inco
   )
 ```
 
+## Question 6
+ 
+```{r}
+#Lower electricity demand curve by half for the high income group
+demand_tax_solar <- function(p, model){
+  q <- (p - (model$coefficients[[1]]/2))/(model$coefficients[[2]])
+  q <- ifelse(q<0,0,q)
+  return(q)
+}
+
+demand_agg_tax_solar <- function(p){
+  q <- demand(p, model_demand_l) + demand_tax_solar(p, model_demand_h)
+  return(q)
+}
+
+# set the two function equal to each other to find optimal price and quantity considering wind 
+new_intercept_solar <- uniroot(function(p)
+  demand_agg_tax_solar(p) - supply(p),
+  interval = c(0,40))
+
+p_star_solar <- new_intercept_solar[["root"]] # p_star_solar is $0.0627
+
+q_star_solar <- supply(p_star_solar) # q_star_solar is 337796 kwh
 
 
+Qagg_solar <- map(price, demand_agg_tax_solar) %>% unlist()
+
+df2_solar<- tibble(Qagg = Qagg_solar, price = price)
+```
+
+
+```{r}
+ggplot() +
+  geom_line(df2, mapping = aes(x = Qagg, y =price)) +# Agg demand
+    geom_abline(slope = coef(model_demand_l)[["q_low_kwh"]], 
+              intercept = coef(model_demand_l)[["(Intercept)"]], color="goldenrod", linetype="twodash") + # Low consumer demand
+  geom_abline(slope = coef(model_demand_h)[["q_high_kwh"]], 
+              intercept = coef(model_demand_h)[["(Intercept)"]], color="steelblue", linetype="twodash") + # High consumer demand
+  geom_abline(slope = coef(model_demand_h)[["q_high_kwh"]], 
+              intercept = (coef(model_demand_h)/2)[["(Intercept)"]], color="pink", linetype="twodash") + # High consumer demand
+  geom_abline(slope = (10/market_q), intercept = 0, color = "green") + #supply curve equation:P= 0.0000186Q
+  geom_abline(slope = 0, intercept = MEC, color = "red") + # MEC
+  scale_x_continuous(limits = c(0,850000), expand = c(0, 0)) +
+  scale_y_continuous(limits = c(0,35), expand = c(0, 0)) +
+  labs(x = "Electricity (kWh)", y = "Price (cents)") +
+  geom_line(df2_solar, mapping = aes(x = Qagg, y = price), color = "orange") + # new demand curve adjusted for tax on consumers
+  theme_bw()
+
+TEC_solar <- (q_star_solar * MEC)/100 #total environmental externality ($6642)
+
+new_tax <- (demand_agg(p_star_solar))#-(demand_agg_tax_solar(p_star_solar))
+
+new_tax_2 <- (TEC_solar*(market_q))
+
+```
 
 
 
