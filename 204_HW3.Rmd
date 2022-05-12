@@ -351,7 +351,7 @@ final_cost_table = subset(cost_table,
                           select = c(SCC,cs_high_yesrevenue,cs_low_yesrevenue,ps) )
 
 kable(final_cost_table, caption = "Table 1: Welfare levels for High and Low income consumers and Electricity Producers based on varying social costs of carbon.", 
-      col.names = c("Social Cost of Carbon (USD)", "High Income Welfare (USD)", "Low Income Welfare (USD)", "Electricity Producer Welfare (USD)")) %>% 
+      col.names = c("Social Cost of Carbon (USD per metric ton)", "High Income Welfare (USD)", "Low Income Welfare (USD)", "Electricity Producer Welfare (USD)")) %>% 
   kable_styling(
     bootstrap_options = c("bordered", "striped", "hover")
   )
