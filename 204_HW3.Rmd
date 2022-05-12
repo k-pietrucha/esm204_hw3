@@ -221,13 +221,13 @@ q_star <- supply(p_star) # q_star is 500216 kwh
 ```{r}
 # calculating surpluses at taxed equilibrium
 
-demand_high_taxed <- function(p){
-  q <-demand_tax(p, model_demand_h)
+demand_high_taxed <- function(p, t){
+  q <-demand_tax(p, model_demand_h, t)
   return(q)
 }
 
-demand_low_taxed <- function(p){
-  q <- demand_tax(p, model_demand_l)
+demand_low_taxed <- function(p, t){
+  q <- demand_tax(p, model_demand_l, t)
   return(q)
 }
 
