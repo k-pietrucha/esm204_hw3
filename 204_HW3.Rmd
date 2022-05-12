@@ -93,6 +93,16 @@ slope_supply <- (10/market_q)
 
 # CS calculation needs Y intercept of high demand/demand agg curve --> at 0 kWh, price would be $0.316
 
+demand_low <- function(p){
+  q <- demand(p, model_demand_l)
+  return(q)
+}
+
+demand_high <- function(p){
+  q <- demand(p, model_demand_h)
+  return(q)
+}
+
 high_sum <-summary.lm(model_demand_h)
 high_y_int <- high_sum$coefficients[1, 1] 
 
@@ -102,14 +112,14 @@ low_y_int <- low_sum$coefficients[1, 1]
 
 # Converted back to dollars
 
-cs_sq_high <- 0.5*market_q*((high_y_int/100) - 0.10)
-# High consumer benefit $57,984.10
-cs_sq_low <- 0.5*market_q*((low_y_int/100) - 0.10)
-# Low consumer benefit $35,882.29
+cs_sq_high <- 0.5*demand_high(10)*((high_y_int/100) - 0.10)
+# High consumer benefit $44874
+cs_sq_low <- 0.5*(demand_low(10))*((low_y_int/100) - 0.10)
+# Low consumer benefit $8112
 
 
 cs_sq_total <- cs_sq_high + cs_sq_low
-# Consumer benefit $93,866.39
+# Consumer benefit $52987
 
 cs_high_prop <- cs_sq_high/cs_sq_total # calculating proportions of consumer surplus before tax
 cs_low_prop <- 1.00 - cs_high_prop
@@ -249,10 +259,6 @@ An optimal electricity tax is equal to the MEC, $ `r round((MEC/100), 2)` cents 
 
 ```{r}
 
-demand_low <- function(p){
-  q <- demand(p, model_demand_l)
-  return(q)
-}
 
 # Question 5 
 #proportion of kwh consumed by low
