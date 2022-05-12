@@ -221,13 +221,13 @@ q_star <- supply(p_star) # q_star is 500216 kwh
 ```{r}
 # calculating surpluses at taxed equilibrium
 
-demand_high_taxed <- function(p){
-  q <-demand_tax(p, model_demand_h)
+demand_high_taxed <- function(p,t){
+  q <-demand_tax(p, model_demand_h,MEC)
   return(q)
 }
 
-demand_low_taxed <- function(p){
-  q <- demand_tax(p, model_demand_l)
+demand_low_taxed <- function(p,t){
+  q <- demand_tax(p, model_demand_l,MEC)
   return(q)
 }
 
@@ -241,10 +241,10 @@ p_star_tax  <- p_star + MEC
 
 # Converted back to dollars
 
-tax_cs_high <- 0.5*(demand_high_taxed(p_star))*((tax_agg_y_int/100) - ((p_star/100) + MEC/100))
+tax_cs_high <- 0.5*(demand_high_taxed(p_star,MEC))*((tax_agg_y_int/100) - ((p_star/100) + MEC/100))
 # High consumer benefit $35,845.77
 
-tax_cs_low <- 0.5*(demand_low_taxed(p_star))*((tax_low_y_int/100) - ((p_star/100) + MEC/100)) - ((MEC/100)*q_star)
+tax_cs_low <- 0.5*(demand_low_taxed(p_star,MEC))*((tax_low_y_int/100) - ((p_star/100) + MEC/100)) - ((MEC/100)*q_star)
 # Low consumer benefit -$4289.99
 
 tax_cs_total <- tax_cs_high + tax_cs_low
