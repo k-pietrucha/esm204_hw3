@@ -339,7 +339,7 @@ cost_table <- tibble(SCC) %>%
   mutate(cs_high_norevenue = cs(p_star_tax, model_demand_h)) %>% 
   mutate(cs_high_yesrevenue = (cs_high_norevenue +high_cs_revenue)/100) %>% 
   mutate(cs_low_norevenue = cs(p_star_tax, model_demand_l) - (MEC * q_star)) %>% 
-  mutate(cs_low_yesrevenue = (cs_low_norevenue + low_cs_revenue/100)) %>% 
+  mutate(cs_low_yesrevenue = (cs_low_norevenue + low_cs_revenue)/100) %>% 
   mutate(ps = ps(p_star)/100) %>% 
   mutate(tec = (MEC * q_star))
 
