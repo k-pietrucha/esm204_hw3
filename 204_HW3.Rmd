@@ -221,15 +221,14 @@ q_star <- supply(p_star) # q_star is 500216 kwh
 ```{r}
 # calculating surpluses at taxed equilibrium
 
-<<<<<<< HEAD
 demand_high_taxed <- function(p, t){
   q <-demand_tax(p, model_demand_h, t)
   return(q)
 }
 
 demand_low_taxed <- function(p, t){
-  q <- demand_tax(p, model_demand_l, t)
-=======
+  q <- demand_tax(p, model_demand_l, t)}
+
 demand_high_taxed <- function(p,t){
   q <-demand_tax(p, model_demand_h,MEC)
   return(q)
@@ -237,7 +236,6 @@ demand_high_taxed <- function(p,t){
 
 demand_low_taxed <- function(p,t){
   q <- demand_tax(p, model_demand_l,MEC)
->>>>>>> 0ad2dcc684d81b52990ccc603b136b8eaf5b17f0
   return(q)
 }
 
@@ -339,10 +337,10 @@ cost_table <- tibble(SCC) %>%
   mutate(high_cs_revenue = cs_high_prop * tax_revenue) %>% 
   mutate(low_cs_revenue = cs_low_prop * tax_revenue) %>% 
   mutate(cs_high_norevenue = cs(p_star_tax, model_demand_h)) %>% 
-  mutate(cs_high_yesrevenue = cs_high_norevenue +high_cs_revenue) %>% 
+  mutate(cs_high_yesrevenue = (cs_high_norevenue +high_cs_revenue)/100) %>% 
   mutate(cs_low_norevenue = cs(p_star_tax, model_demand_l) - (MEC * q_star)) %>% 
-  mutate(cs_low_yesrevenue = cs_low_norevenue + low_cs_revenue ) %>% 
-  mutate(ps = ps(p_star)) %>% 
+  mutate(cs_low_yesrevenue = (cs_low_norevenue + low_cs_revenue/100)) %>% 
+  mutate(ps = ps(p_star)/100) %>% 
   mutate(tec = (MEC * q_star))
 
 final_cost_table = subset(cost_table, 
